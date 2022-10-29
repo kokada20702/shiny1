@@ -3,6 +3,9 @@ library(shiny)
 
 
 sales <- vroom::vroom("sales-dashboard/sales_data_sample.csv", col_types = list(), na = "")
+spec(sales)
+
+
 
 # sales %>% select(TERRITORY, CUSTOMERNAME, ORDERNUMBER, everything()) %>% arrange(ORDERNUMBER)
 # sales %>% group_by(TERRITORY, CUSTOMERNAME, ORDERNUMBER) %>% summarize(n= n())
@@ -28,6 +31,7 @@ server <- function(input, output, session) {
     filter(sales, TERRITORY == input$territory)
   })
   observeEvent(territory(), {
+    freezeReactiveValue(input, "customername")
     updateSelectInput(session, "customername", choices = unique(territory()$CUSTOMERNAME))
   })
   
@@ -36,6 +40,7 @@ server <- function(input, output, session) {
     filter(territory(), CUSTOMERNAME == input$customername)
   })
   observeEvent(customer(), {
+    freezeReactiveValue(input, "ordernumber")
     updateSelectInput(session, "ordernumber", choices = unique(customer()$ORDERNUMBER))
   })
   
