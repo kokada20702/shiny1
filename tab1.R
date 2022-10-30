@@ -6,7 +6,7 @@ parameter_tabs <- tabsetPanel(
   type = "hidden",
   tabPanel("normal", 
            numericInput("mean", "Mean", value = 1), 
-           numericInput("df". "Std Dev", min = 0, value = 1)
+           numericInput("sd", "Std Dev", min = 0, value = 1)
            ),
   tabPanel("uniform", 
            numericInput("min", "Min", value = 0), 
@@ -21,7 +21,7 @@ ui <- fluidPage(
   sidebarLayout(
     sidebarPanel(
       selectInput("dist", "Distribution", choices = c("normal", "uniform", "exponential")),
-      numericInput("n", "Number of samples", value = 100),
+      numericInput("n", "Number of Samples", value = 100),
       parameter_tabs,
     ),
     mainPanel(
@@ -32,10 +32,16 @@ ui <- fluidPage(
 
 server <- function(input, output, session) {
   observeEvent(input$dist, {
+    
     updateTabsetPanel(inputId = "params", selected = input$dist)
   })
-  samples <- reactive({
+  sample <- reactive({
     switch(input$dist, 
-           normal = rnorm(input$n, )
+           normal = rnorm(input$n, input$mean, input$sd), 
+           uniform = runif(input$n, input$min, input$max), 
+           exponential = rexp(input$n, input$rate)
+    )
   })
+  output$hist = renderPlot(hist(sample()), res = 96)
 }
+shinyApp(ui, server)
